@@ -15,87 +15,82 @@ def menuOption():
     print("3. Calculate average grade")
     print("4. Exit")
 
-# students = [{"id": 1, "nombre":"Sergio", "edad":32, "notas": 5 4 3, notaDefinitiva: 4, Aprueba}, ...]
-students = []
-
-def register():
-
-    while True:
-        nameInput = input("Enter name of student: ").strip().title() # Strip quito espacios extremos
-        nameList = nameInput.split() # Split separo palabras en una lista
-        # print(nameList)
-        if not nameList: 
-             print("Error: Name cannot be empty.")
-             continue # Salta el resto del código dentro del bucle y regresa al principio del bucle, para la siguiente iteración, para volver a ingresar el nombre
-        
-        invalidName = False # Con esta variable definimos si continuamos en ciclando el while hasta que ingrese un nombre permitido
-        for name in nameList:
-            if not name.isalpha(): # valido cada palabra, si contiene solo letras devuelve un booleano True
-                print(f"Error: '{name}'. Enter only letters.")
-                invalidName = True
-                break # salimos del for
-
-        if not invalidName:  # si no se encontró ningún error
-            fullName = " ".join(nameList)
-            # print(f"Name entered: {fullName}")           
-            break  # salimos del while         
-
+def getValidName(): 
+        while True:
+            nameInput = input("Enter name of student: ").strip().title() # Strip quito espacios extremos
+            nameList = nameInput.split() # Split separo palabras en una lista
+            # print(nameList)
+            if not nameList: 
+                print("Error: Name cannot be empty.")
+                continue # Salta el resto del código dentro del bucle y regresa al principio del bucle, para la siguiente iteración, para volver a ingresar el nombre
+            
+            if all(name.isalpha() for name in nameList): # isalpha(): valido cada nombre, si contiene solo letras devuelve un booleano True, si toda(all) la lista es true significa que el nombre completo esta bien
+                return " ".join(nameList)
+                                        
+            print(f"Error: '{nameInput}'. Enter only letters.")
+                    
+def getValidAge():
     while True:
         ageInput = input("Enter age of student: ")
         try:
             age = int(ageInput)
-            if age < 18 or age > 70:
-                    print("Error: Age must be between 18 and 70")
-                    continue
-            # print(f"Age entered: {age}")
-            break
+            if 18 <= age <= 70:
+                return age
+                    
+            print("Error: Age must be between 18 and 70")
+                    
         except ValueError:
             print(f"Error: '{ageInput}'. Enter only numbers")
-    
-    grades = []
-    sumOfGrades = 0
 
+def getValidGrades():
+    grades = []
     for i in range(3):
         while True:
             gradeInput = input(f"Enter grade #{i+1}: ")
             try:
                 grade = float(gradeInput)
-
-                if grade < 0 or grade > 5:
-                    print("Error: Grade must be between 0 and 5.")
-                    continue
-
-                grades.append(grade)
-                sumOfGrades += grade
-                # print(f"Grade #{i+1} entered: {grade}")
-                break
+                if 0 <= grade <= 5:
+                    grades.append(grade)
+                    break
+                
+                print("Error: Grade must be between 0 and 5.")
 
             except ValueError:
                 print(f"Error: '{gradeInput}'. Enter only numbers.")
+    return grades
 
-    averageGrades = round(sumOfGrades / len(grades),1)
-    # averageGrades = round(sum(grades) / len(grades),1) # Otra opcion calcular promedios
-    result = "Approves" if averageGrades >= 3 else "Disapproves"
+def getAverageGrades(grades):
+    return round(sum(grades) / len(grades),1)
 
+def getResult(averageGrades):
+    return "Approves" if averageGrades >= 3 else "Disapproves"
+
+def registerStudent(students):
+    name = getValidName() 
+    age = getValidAge()
+    grades = getValidGrades()
+    averageGrades = getAverageGrades(grades) 
+    result = getResult(averageGrades)   
+    # print(name)
+    # print(ages)
     # print(grades)
     # print(len(grades))
     # print(averageGrades)
+    # print(result)
 
     student = {
         "id": len(students)+1,
-        "name": fullName,
+        "name": name,
         "age": age,
         "grades": grades,
         "average": averageGrades,
         "result": result
     }
-
-    students.append(student)
     # print(student)
+    students.append(student) #no es necesario return devolveria solo una referencia
     # print(students)
-
-def view():
-
+    
+def viewStudentList(students):
     if not students:
         print("There are not students registered")
     else:       
@@ -104,12 +99,11 @@ def view():
             print(f"Id: {student['id']}")
             print(f"Name: {student['name']}")
             print(f"Age: {student['age']}")
-            print(f"Grades: {' | '.join(str(g) for g in student['grades'])}") # Convertir cada valor de la lista en un string, para usar la funcion join e imprimir cada valor con su separador 
+            print(f"Grades: {' | '.join(str(g) for g in student['grades'])}") # Convertir cada valor del generador en un string, para usar la funcion join e imprimir cada valor con su separador 
             print(f"Average: {student['average']}")
             print(f"Result: {student['result']}")
 
-def calculate():
-
+def calculateGeneralAverage(students):
     # print(students)
     if not students:
         print("There are not students registered")
@@ -117,30 +111,32 @@ def calculate():
 
     average_grades = sum(student['average'] for student in students) / len(students)
     print(f"Average Grades Students: {average_grades:.1f}")
-   
+
+
+def getValidOpcion():
+        while True:
+            print("------------------------------")
+            optionInput = input("Enter option number: ")
+            print("------------------------------")
+            try:
+                return int(optionInput)               
+            except ValueError:
+                print(f"Error: '{optionInput}'. Enter only number option")
+
+students = [] 
 while True:
     menuOption()
-    while True:
-        print("------------------------------")
-        optionInput = input("Enter option number: ")
-        print("------------------------------")
-        try:
-            option = int(optionInput)
-            break
-        except:
-            print(f"Error: '{optionInput}'. Enter only number option")
-
+    option = getValidOpcion()
     if option == 1:
-        register()
+        registerStudent(students)
     elif option == 2:
-        view()
+        viewStudentList(students)
     elif option == 3:
-        calculate()
+        calculateGeneralAverage(students)
     elif option == 4:
         print("Exit")
         break
     else: 
         print("Error: Incorrect option selected")
-
 
     
