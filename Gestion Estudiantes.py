@@ -7,26 +7,29 @@ El programa debe permitir:
 4.Salir del programa
 """
 
+students = []
+lastCurrentId = 0 
+
 def menuOption():
     print("------------------------------")
     print("------------ Menu ------------")
     print("1. Register student")
     print("2. View student information")
     print("3. Calculate average grade")
-    print("4. Exit")
+    print("4. Delete Student")
+    print("5. Exit")
 
 def getValidName(): 
         while True:
             nameInput = input("Enter name of student: ").strip().title() # Strip quito espacios extremos
-            nameList = nameInput.split() # Split separo palabras en una lista
+            nameList = nameInput.split() # Split separo palabras en una lista 
             # print(nameList)
             if not nameList: 
                 print("Error: Name cannot be empty.")
-                continue # Salta el resto del código dentro del bucle y regresa al principio del bucle, para la siguiente iteración, para volver a ingresar el nombre
-            
+                continue # Salta el resto del código dentro del bucle y regresa al principio del bucle, para la siguiente iteración, para volver a ingresar el nombre 
             if all(name.isalpha() for name in nameList): # isalpha(): valido cada nombre, si contiene solo letras devuelve un booleano True, si toda(all) la lista es true significa que el nombre completo esta bien
-                return " ".join(nameList)
-                                        
+                return " ".join(nameList)   
+                                      
             print(f"Error: '{nameInput}'. Enter only letters.")
                     
 def getValidAge():
@@ -35,10 +38,8 @@ def getValidAge():
         try:
             age = int(ageInput)
             if 18 <= age <= 70:
-                return age
-                    
+                return age         
             print("Error: Age must be between 18 and 70")
-                    
         except ValueError:
             print(f"Error: '{ageInput}'. Enter only numbers")
 
@@ -51,10 +52,8 @@ def getValidGrades():
                 grade = float(gradeInput)
                 if 0 <= grade <= 5:
                     grades.append(grade)
-                    break
-                
+                    break              
                 print("Error: Grade must be between 0 and 5.")
-
             except ValueError:
                 print(f"Error: '{gradeInput}'. Enter only numbers.")
     return grades
@@ -65,7 +64,8 @@ def getAverageGrades(grades):
 def getResult(averageGrades):
     return "Approves" if averageGrades >= 3 else "Disapproves"
 
-def registerStudent(students):
+def registerStudent(students,lastCurrentId):
+    idStudent = lastCurrentId
     name = getValidName() 
     age = getValidAge()
     grades = getValidGrades()
@@ -79,22 +79,25 @@ def registerStudent(students):
     # print(result)
 
     student = {
-        "id": len(students)+1,
+        "id": idStudent,
         "name": name,
         "age": age,
         "grades": grades,
         "average": averageGrades,
-        "result": result
+        "result": result,
     }
-    # print(student)
+
+    print(student)
     students.append(student) #no es necesario return devolveria solo una referencia
-    # print(students)
-    
+    print(students)
+    print("Student added successfully")
+
+        
 def viewStudentList(students):
     if not students:
         print("There are not students registered")
-    else:       
-       for student in students:
+    else:     
+        for student in students:
             print("------------------------------")
             print(f"Id: {student['id']}")
             print(f"Name: {student['name']}")
@@ -109,11 +112,35 @@ def calculateGeneralAverage(students):
         print("There are not students registered")
         return # aunque no devolvemos nada, terminamos la ejecucion de la funcion para evitar division por cero en el promedio
 
-    average_grades = sum(student['average'] for student in students) / len(students)
-    print(f"Average Grades Students: {average_grades:.1f}")
+    averageGrades = sum(student['average'] for student in students) / len(students)
+    print(f"Average Grades Students: {averageGrades:.1f}")
+
+def getValidId():
+    while True:
+        idStudentInput = (input("Enter number ID for delete student: "))
+        try:
+            idStudentDelete= int(idStudentInput)
+            if idStudentDelete > 0:
+                return idStudentDelete  
+            
+            print("Error: The ID must be a positive number")         
+        except ValueError:
+            print(f"Error: '{idStudentInput}'. Enter only numbers.")
+
+def deleteStudent(students):
+    if not students:
+        print("There are not students registered")
+    else:
+        idStudentDelete= getValidId()
+        newStudents = [student for student in students if student["id"] != idStudentDelete] #Crear una nueva lista con todos los estudiantes excepto el que tiene el id que quiero borrar
+
+        print("Student not found") if len(newStudents) == len(students) else print("Student deleted successfully")
+        # Validar si el id ingresado si exite 
+
+        return newStudents
 
 
-def getValidOpcion():
+def getValidOption():
         while True:
             print("------------------------------")
             optionInput = input("Enter option number: ")
@@ -123,20 +150,23 @@ def getValidOpcion():
             except ValueError:
                 print(f"Error: '{optionInput}'. Enter only number option")
 
-students = [] 
 while True:
     menuOption()
-    option = getValidOpcion()
+    option = getValidOption()
     if option == 1:
-        registerStudent(students)
+        lastCurrentId= lastCurrentId + 1
+        registerStudent(students,lastCurrentId)    
     elif option == 2:
         viewStudentList(students)
     elif option == 3:
         calculateGeneralAverage(students)
     elif option == 4:
+        students = deleteStudent(students)
+    elif option == 5:
         print("Exit")
         break
     else: 
         print("Error: Incorrect option selected")
+
 
     
